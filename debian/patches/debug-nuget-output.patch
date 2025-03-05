@@ -1,0 +1,10 @@
+--- dotnet8.orig/repo-projects/source-build-reference-packages.proj
++++ dotnet8/repo-projects/source-build-reference-packages.proj
+@@ -12,6 +12,7 @@
+ 
+     <!-- SBRP builds before Arcade so it also needs the bootstrap Arcade version -->
+     <UseBootstrapArcade>true</UseBootstrapArcade>
++    <NuGetConfigFile Condition="'$(NuGetConfigFile)' == '' and Exists('$(ProjectDir)NuGet.config')">$(ProjectDir)NuGet.config</NuGetConfigFile>
+   </PropertyGroup>
+ 
+   <Target Name="AddLocalNuGetPackageCacheDirectory" BeforeTargets="Build">

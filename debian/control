@@ -1,0 +1,149 @@
+Source: dotnet8
+Section: dotnet
+Priority: optional
+Maintainer: Лаборатория 50 <team@lab50.net>
+Build-Depends: debhelper-compat (= 13),
+ cmake (>= 3.20),
+ clang,
+ dotnet-host-8.0 (>= 8.0.12) <!bootstrap>,
+ dotnet-sdk-8.0 (>= 8.0.112) <!bootstrap>,
+ dotnet-sdk-bootstrap-8.0 (>= 8.0.112) <!bootstrap>,
+ dwz (>= 0.15-2),
+ gettext,
+ git,
+ jq,
+ libicu-dev,
+ libkrb5-dev,
+ liblttng-ust-dev,
+ libnuma-dev,
+ libssl-dev,
+# libunwind-dev,
+ llvm,
+ python3,
+ zlib1g-dev
+Standards-Version: 4.8.0
+Rules-Requires-Root: no
+Homepage: https://lab50.net/
+Vcs-Git: https://github.com/laboratory50/dotnet.git
+Vcs-Browser: https://github.com/laboratory50/dotnet
+
+Package: ms-dotnet-sdk-8.0
+Architecture: all
+Depends: ms-dotnet-targeting-pack-8.0 (>= ${runtime:Version}),
+ ms-netstandard-targeting-pack-2.1 (>= ${runtime:Version}),
+ ms-aspnetcore-runtime-8.0 (>= ${runtime:Version}),
+ ms-dotnet-apphost-pack-8.0 (>= ${runtime:Version}),
+ ms-dotnet-runtime-8.0 (>= ${runtime:Version}),
+ ms-aspnetcore-targeting-pack-8.0 (>= ${runtime:Version})
+Description: Microsoft .NET SDK 8
+ Набор библиотек и инструментов для разработки приложений
+ на платформе .NET 8.
+ .
+ Платформа .NET это быстрая легковесная модульная платформа для создания
+ кросс-платформенных приложений для Linux, Mac и Windows.
+
+Package: ms-dotnet-runtime-8.0
+Architecture: any
+Depends: ${shlibs:Depends},
+ libnuma1
+Description: Microsoft .NET Runtime 8
+ Среда выполнения .NET 8.0. Предоставляет общеязыковую среду
+ исполнения (CoreCLR) и основную библиотеку (CoreFX).
+ Набор библиотек, составляющих пространства имен System.*
+ (и ограниченный эгрегор Microsoft.*).
+ .
+ Универсальная платформа низкого уровня, которая является основой платформ
+ приложений более высокого уровня, например ASP.NET Core.
+ .
+ Платформа .NET это быстрая легковесная модульная платформа для создания
+ кросс-платформенных приложений для Linux, Mac и Windows.
+
+Package: ms-aspnetcore-runtime-8.0
+Architecture: all
+Depends: ms-dotnet-runtime-8.0 (>= ${binary:Version})
+Description: Microsoft ASP.NET Runtime 8
+ Среда выполнения ASP.NET 8. Предоставляет среду исполнения
+ для веб-приложений.
+ .
+ Платформа .NET это быстрая легковесная модульная платформа для создания
+ кросс-платформенных приложений для Linux, Mac и Windows.
+
+Package: ms-dotnet-host-8.0
+Architecture: any
+Depends: libms-dotnet-host-8.0 (= ${binary:Version})
+Replaces: ms-dotnet-host
+Description: Microsoft .NET runtime (dotnet command)
+ Команда dotnet платформы .NET необходима для запуска программ,
+ использующих платформу .NET.
+ .
+ Платформа .NET это быстрая легковесная модульная платформа для создания
+ кросс-платформенных приложений для Linux, Mac и Windows.
+
+Package: libms-dotnet-host-8.0
+Architecture: any
+Depends: ${shlibs:Depends}
+Provides: ms-dotnet-hostfxr-8.0
+Replaces: ms-dotnet-hostfxf-8.0
+Description: .NET runtime (.NET Host Resolver)
+ Библиотека резолвера общеязыковой среды выполнения (CoreCLR) и
+ библиотек платформы .NET 8. Отвечает за выбор необходимой среды
+ выполнения при запуске приложения .NET.
+ .
+ Платформа .NET это быстрая легковесная модульная платформа для создания
+ кросс-платформенных приложений для Linux, Mac и Windows.
+
+Package: ms-dotnet-apphost-pack-8.0
+Section: devel
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: Microsoft .NET runtime (apphost)
+ Пакет содержит apphost — утилиту создания исполняемых файлов для
+ конкретной платформы.
+ .
+ Платформа .NET это быстрая легковесная модульная платформа для создания
+ кросс-платформенных приложений для Linux, Mac и Windows.
+
+Package: ms-dotnet-targeting-pack-8.0
+Section: devel
+Architecture: all
+Description: Microsoft .NET runtime (8.0 targeting pack)
+ Пакет содержит целевую платформу для .NET 8. Целевая платформа
+ может использоваться для сборки приложений под данную версию .NET Core.
+ .
+ Платформа .NET это быстрая легковесная модульная платформа для создания
+ кросс-платформенных приложений для Linux, Mac и Windows.
+
+Package: ms-aspnetcore-targeting-pack-8.0
+Section: devel
+Architecture: all
+Depends: ms-dotnet-targeting-pack-8.0 (>= ${binary:Version})
+Description: Microsoft ASP.NET runtime (8.0 targeting pack)
+ Пакет содержит целевую платформу для ASP.NET 8. Целевая платформа
+ может использоваться для сборки приложений под данную версию ASP.NET.
+ .
+ Платформа .NET это быстрая легковесная модульная платформа для создания
+ кросс-платформенных приложений для Linux, Mac и Windows.
+
+Package: ms-netstandard-targeting-pack-2.1
+Section: devel
+Architecture: all
+Description: Microsoft .NET Standard (2.1 targeting pack)
+ Пакет содержит целевую платформу для .NET Standard 2.1. Целевая платформа
+ может использоваться для сборки приложений под
+ версию 2.1 .NET Standard.
+ .
+ Платформа .NET это быстрая легковесная модульная платформа для создания
+ кросс-платформенных приложений для Linux, Mac и Windows.
+
+Package: ms-dotnet-8.0-dbg
+Architecture: any
+Section: debug
+Priority: extra
+Depends: ${misc:Depends}
+Description: Microsoft .NET SDK 8 (отладочная информация)
+ Набор библиотек и инструментов для разработки приложений на платформе .NET.
+ Пакет содержит отладочные символы.
+ .
+ Платформа .NET это быстрая легковесная модульная платформа для создания
+ кросс-платформенных приложений для Linux, Mac и Windows.
+

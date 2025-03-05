@@ -1,0 +1,5 @@
+usr/share/dotnet/sdk usr/lib/${DEB_BUILD_MULTIARCH}/dotnet/sdk
+usr/share/dotnet/packs usr/lib/${DEB_BUILD_MULTIARCH}/dotnet/packs
+usr/share/dotnet/templates usr/lib/${DEB_BUILD_MULTIARCH}/dotnet/templates
+usr/share/dotnet/sdk-manifests usr/lib/${DEB_BUILD_MULTIARCH}/dotnet/sdk-manifests
+

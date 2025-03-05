@@ -1,0 +1,10 @@
+artifacts/
+#Tools/
+#previously-built-dotnet/
+#packages/previously-source-built/
+#packages/reference/
+#packages/restored/
+#packages/archive/*.tar.gz
+#tools-local/tasks/Microsoft.DotNet.SourceBuild.Tasks.XPlat/bin/
+#tools-local/tasks/Microsoft.DotNet.SourceBuild.Tasks.XPlat/obj/
+#tools-local/tasks/SourceBuild.MSBuildSdkResolver/obj/

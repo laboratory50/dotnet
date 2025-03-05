@@ -1,0 +1,6 @@
+debug-nuget-output.patch
+vstest-intent-net8.0.patch
+runtime-re-enable-implicit-rejection.patch
+runtime-openssl-sha1.patch
+fix-default-path.patch
+astra-linux-rid.patch

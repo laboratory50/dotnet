@@ -1,0 +1,3 @@
+debian/dotnet.sh /etc/profile.d/
+debian/install_location_* /etc/dotnet
+usr/share/dotnet/dotnet usr/lib/${DEB_BUILD_MULTIARCH}/dotnet/

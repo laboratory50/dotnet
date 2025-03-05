@@ -1,0 +1,5 @@
+dotnet8 (8.0.13-1) testing; urgency=medium
+
+  * Импорт .NET 8 версии 8.0.13.
+
+ -- Лаборатория 50 <team@lab50.net>  Thu, 27 Feb 2025 11:25:23 +0300

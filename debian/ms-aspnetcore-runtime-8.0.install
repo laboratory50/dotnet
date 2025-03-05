@@ -1,0 +1,1 @@
+usr/share/dotnet/shared/Microsoft.AspNetCore.App usr/lib/${DEB_BUILD_MULTIARCH}/dotnet/shared

@@ -1,0 +1,27 @@
+--- dotnet8.orig/src/runtime/src/native/corehost/hostmisc/hostmisc.cmake
++++ dotnet8/src/runtime/src/native/corehost/hostmisc/hostmisc.cmake
+@@ -1,10 +1,13 @@
+ # Licensed to the .NET Foundation under one or more agreements.
+ # The .NET Foundation licenses this file to you under the MIT license.
+ 
++include(GNUInstallDirs)
+ include(${CMAKE_CURRENT_LIST_DIR}/configure.cmake)
+ include_directories(${CMAKE_CURRENT_BINARY_DIR})
+ include_directories("${CLR_SRC_NATIVE_DIR}")
+ 
++add_definitions(-DCMAKE_INSTALL_LIBDIR="${CMAKE_INSTALL_LIBDIR}")
++
+ # CMake does not recommend using globbing since it messes with the freshness checks
+ list(APPEND SOURCES
+     ${CMAKE_CURRENT_LIST_DIR}/trace.cpp
+--- dotnet8.orig/src/runtime/src/native/corehost/hostmisc/pal.unix.cpp
++++ dotnet8/src/runtime/src/native/corehost/hostmisc/pal.unix.cpp
+@@ -591,6 +591,8 @@ bool pal::get_default_installation_dir_f
+         append_path(recv, get_arch_name(arch));
+     }
+ #endif
++#elif defined(CMAKE_INSTALL_LIBDIR)
++    recv->assign(_X(CMAKE_INSTALL_LIBDIR "/dotnet"));
+ #else
+     recv->assign(_X("/usr/share/dotnet"));
+ #endif

@@ -1,0 +1,2 @@
+#usr/lib/${DEB_BUILD_MULTIARCH}/dotnet/packs
+usr/share/dotnet/metadata/workloads/*/userlocal

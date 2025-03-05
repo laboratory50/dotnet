@@ -1,0 +1,103 @@
+#!/usr/bin/make -f
+
+include /usr/share/dpkg/pkg-info.mk
+include /usr/share/dpkg/architecture.mk
+include /usr/share/dpkg/buildflags.mk
+
+ifeq ($(DEB_BUILD_ARCH),amd64)
+  BUILD_ARCH = x64
+else ifeq ($(DEB_BUILD_ARCH),i386)
+  BUILD_ARCH = x86
+else
+  BUILD_ARCH = $(DEB_BUILD_ARCH)
+endif
+
+LSB_OS_ID := $(shell grep -oP '(?<=^ID=).+' /etc/os-release | tr -d '"')
+LSB_VERSION_ID := $(shell grep -oP '(?<=^VERSION_ID=).+' /etc/os-release | tr -d '"' | sed s/_.*$$//)
+REVISION := $(shell echo $(DEB_VERSION_UPSTREAM_REVISION) | sed 's/^[0-9\.\+a-z]\+-//')
+BUILD_RID := $(LSB_OS_ID).$(LSB_VERSION_ID)
+
+ICU_VERSION := $(shell dpkg-query -f '$${Version}' -W libicu-dev | grep -o '^[0-9]*')
+
+UPSTREAM_TAG = v$(DEB_VERSION_UPSTREAM)
+
+arch      = usr/lib/$(DEB_BUILD_MULTIARCH)/dotnet
+share     = usr/share/dotnet
+
+BUILD_OPT := /p:PortableBuild=false
+ifdef DH_VERBOSE
+BUILD_OPT += /p:ContinueOnPrebuiltBaselineError=true /p:LogVerbosity=n /p:MinimalConsoleLogOutput=false /v:n
+endif
+
+export MSBUILDDISABLENODEREUSE=1
+export MSBUILDUSESHAREDCOMPILATION=false
+export UseSharedCompilation=false
+export DOTNET_CLI_TELEMETRY_OPTOUT=1
+
+dh_sdk_version := $(shell jq -r .sdkVersion debian/release.json)
+dh_runtime_version := $(shell jq -r .runtimeVersion debian/release.json)
+
+export dh_sdk_version dh_runtime_version
+
+exclude := packs/Microsoft.NETCore.App.Runtime.$(BUILD_RID)-$(BUILD_ARCH) \
+  packs/Microsoft.AspNetCore.App.Runtime.$(BUILD_RID)-$(BUILD_ARCH)
+
+export DEB_BUILD_MAINT_OPTIONS=optimize=-lto
+
+export EXTRA_CFLAGS = $(CFLAGS) -march=x86-64-v2
+export EXTRA_CXXFLAGS = $(CXXFLAGS) -march=x86-64-v2
+export EXTRA_LDFLAGS = $(LDFLAGS) -march=x86-64-v2
+
+debian/release.json:
+	@if [ "$(DEB_VERSION_UPSTREAM)" != "$(dh_runtime_version)" ]; then \
+		wget -q -O $@ https://github.com/dotnet/dotnet/releases/download/$(UPSTREAM_TAG)/release.json; \
+		echo "release.json updated"; \
+		exit 1; \
+	fi
+
+%:
+	dh $@
+
+override_dh_auto_clean:
+#	./build.sh -- /t:clean
+	find src -maxdepth 2 -name artifacts -type d -exec rm -rf {} \;
+	dh_clean
+	rm -rf .dotnet
+
+debian/dotnet.sh: debian/dotnet.sh.in
+	sed "s|@arch@|/$(arch)|" $< > $@
+
+debian/install_location_$(BUILD_ARCH): debian/rules
+	echo "/usr/lib/${DEB_BUILD_MULTIARCH}/dotnet" > $@
+
+override_dh_auto_build: debian/release.json
+	$(info Runtime: $(dh_runtime_version))
+	$(info SDK: $(dh_sdk_version))
+	mkdir -p prereqs/packages/archive
+	mkdir -p previously-built-dotnet
+	cp -Lr /$(arch)/* previously-built-dotnet
+	ln -sf /$(arch)/source-built-artifacts/Private.SourceBuilt.Artifacts.*.tar.gz prereqs/packages/archive/
+	VERBOSE=$(DH_VERBOSE) ./build.sh --with-sdk previously-built-dotnet --release-manifest debian/release.json -- $(BUILD_OPT)
+
+override_dh_auto_install: debian/dotnet.sh debian/install_location_$(BUILD_ARCH)
+	dh_installdirs --create-in-sourcedir $(share)
+	tar -xf artifacts/$(BUILD_ARCH)/Release/dotnet-sdk-$(dh_sdk_version)-$(BUILD_RID)-$(BUILD_ARCH).tar.gz \
+		-C debian/tmp/$(share) $(addprefix --exclude ,$(exclude))
+	tar -xf artifacts/$(BUILD_ARCH)/Release/dotnet-symbols-sdk-$(dh_sdk_version)*-$(BUILD_RID)-$(BUILD_ARCH).tar.gz \
+		-C debian/tmp/$(share) $(addprefix --exclude ,$(exclude))
+
+override_dh_install:
+	dh_install -pms-dotnet-8.0-dbg 
+	dh_install --remaining-packages -X.pdb
+
+override_dh_link:
+	dh_link
+	dh_link -pms-dotnet-host-8.0 $(arch)/dotnet usr/bin/dotnet
+
+override_dh_gencontrol:
+	dh_gencontrol -pms-dotnet-sdk-8.0 \
+		-- -v$(dh_sdk_version)-$(REVISION) -Vsdk:Version=$(dh_sdk_version) -Vruntime:Version=$(dh_runtime_version)
+	dh_gencontrol --remaining-packages \
+		-- -Vlibicu=libicu$(ICU_VERSION) -Vsdk:Version=$(dh_sdk_version) -Vruntime:Version=$(dh_runtime_version)
+
+.PHONY: debian/release.json

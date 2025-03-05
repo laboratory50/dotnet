@@ -1,0 +1,257 @@
+--- dotnet8.orig/src/runtime/src/libraries/Microsoft.NETCore.Platforms/src/runtime.json
++++ dotnet8/src/runtime/src/libraries/Microsoft.NETCore.Platforms/src/runtime.json
+@@ -1056,6 +1056,50 @@
+         "linux-x64"
+       ]
+     },
++    "astra": {
++      "#import": [
++        "debian.10"
++      ]
++    },
++    "astra-x64": {
++      "#import": [
++        "astra",
++        "debian.10-x64"
++      ]
++    },
++    "astra.1.6": {
++      "#import": [
++        "astra"
++      ]
++    },
++    "astra.1.6-x64": {
++      "#import": [
++        "astra.1.6",
++        "astra-x64"
++      ]
++    },
++    "astra.1.7": {
++      "#import": [
++        "astra"
++      ]
++    },
++    "astra.1.7-x64": {
++      "#import": [
++        "astra.1.7",
++        "astra-x64"
++      ]
++    },
++    "astra.1.8": {
++      "#import": [
++        "debian.12"
++      ]
++    },
++    "astra.1.8-x64": {
++      "#import": [
++        "astra.1.8",
++        "debian.12-x64"
++      ]
++    },
+     "base": {
+       "#import": []
+     },
+--- dotnet8.orig/src/runtime/src/libraries/Microsoft.NETCore.Platforms/src/runtimeGroups.props
++++ dotnet8/src/runtime/src/libraries/Microsoft.NETCore.Platforms/src/runtimeGroups.props
+@@ -40,6 +40,18 @@
+       <Architectures>x64</Architectures>
+     </RuntimeGroup>
+ 
++    <RuntimeGroup Include="astra">
++      <Parent>debian.10</Parent>
++      <Architectures>x64</Architectures>
++      <Versions>1.6;1.7</Versions>
++      <TreatVersionsAsCompatible>false</TreatVersionsAsCompatible>
++    </RuntimeGroup>
++    <RuntimeGroup Include="astra.1.8">
++      <Parent>debian.12</Parent>
++      <Architectures>x64</Architectures>
++      <TreatVersionsAsCompatible>false</TreatVersionsAsCompatible>
++    </RuntimeGroup>
++
+     <RuntimeGroup Include="browser">
+       <Parent>any</Parent>
+       <Architectures>wasm</Architectures>
+--- dotnet8.orig/src/runtime/src/native/corehost/hostmisc/pal.unix.cpp
++++ dotnet8/src/runtime/src/native/corehost/hostmisc/pal.unix.cpp
+@@ -769,6 +769,7 @@ pal::string_t normalize_linux_rid(pal::s
+     pal::string_t rhelPrefix(_X("rhel."));
+     pal::string_t alpinePrefix(_X("alpine."));
+     pal::string_t rockyPrefix(_X("rocky."));
++    pal::string_t astraPrefix(_X("astra."));
+     size_t lastVersionSeparatorIndex = std::string::npos;
+ 
+     if (rid.compare(0, rhelPrefix.length(), rhelPrefix) == 0)
+@@ -787,6 +788,10 @@ pal::string_t normalize_linux_rid(pal::s
+     {
+         lastVersionSeparatorIndex = rid.find(_X("."), rockyPrefix.length());
+     }
++    else if (rid.compare(0, astraPrefix.length(), astraPrefix) == 0)
++    {
++        lastVersionSeparatorIndex = rid.find(_X("_"), astraPrefix.length());
++    }
+ 
+     if (lastVersionSeparatorIndex != std::string::npos)
+     {
+--- dotnet8.orig/src/runtime/eng/native/init-distro-rid.sh
++++ dotnet8/src/runtime/eng/native/init-distro-rid.sh
+@@ -24,6 +24,10 @@ getNonPortableDistroRid()
+                 # remove the last version digit
+                 VERSION_ID="${VERSION_ID%.*}"
+             fi
++            if [[ "${ID}" == "astra" ]]; then
++                # remove the arch spec
++                VERSION_ID="${VERSION_ID%_*}"
++            fi
+ 
+             if [[ "${VERSION_ID:-}" =~ ^([[:digit:]]|\.)+$ ]]; then
+                 nonPortableRid="${ID}.${VERSION_ID}-${targetArch}"
+--- dotnet8.orig/src/installer/src/redist/targets/GetRuntimeInformation.targets
++++ dotnet8/src/installer/src/redist/targets/GetRuntimeInformation.targets
+@@ -23,7 +23,7 @@
+     </PropertyGroup>
+ 
+     <PropertyGroup>
+-      <IsDebianBaseDistro Condition=" $(HostRid.StartsWith('ubuntu')) OR $(HostRid.StartsWith('debian')) ">true</IsDebianBaseDistro>
++      <IsDebianBaseDistro Condition=" $(HostRid.StartsWith('ubuntu')) OR $(HostRid.StartsWith('debian')) OR $(HostRid.StartsWith('astra'))">true</IsDebianBaseDistro>
+       <IsRPMBasedDistro Condition=" $(HostRid.StartsWith('rhel')) AND '$(HostRid)' != 'rhel.6-x64' ">true</IsRPMBasedDistro>
+       <IsRPMBasedDistro Condition=" $(HostRid.StartsWith('centos')) ">true</IsRPMBasedDistro>
+       <PublishNativeInstallers Condition=" '$(IslinuxPortable)' != 'true' AND '$(HostRid)' != 'rhel.6-x64' AND !$(Rid.StartsWith('linux-musl'))">true</PublishNativeInstallers>
+--- dotnet8.orig/eng/common/native/init-distro-rid.sh
++++ dotnet8/eng/common/native/init-distro-rid.sh
+@@ -23,6 +23,9 @@ getNonPortableDistroRid()
+             if [[ "${ID}" == "rhel" || "${ID}" == "rocky" || "${ID}" == "alpine" ]]; then
+                 # remove the last version digit
+                 VERSION_ID="${VERSION_ID%.*}"
++            elif [[ "${ID}" == "astra" ]]; then
++                # remove the arch spec
++                VERSION_ID="${VERSION_ID%_*}"
+             fi
+ 
+             if [[ "${VERSION_ID:-}" =~ ^([[:digit:]]|\.)+$ ]]; then
+--- dotnet8.orig/src/runtime/src/libraries/Microsoft.NETCore.Platforms/src/runtime.compatibility.json
++++ dotnet8/src/runtime/src/libraries/Microsoft.NETCore.Platforms/src/runtime.compatibility.json
+@@ -4108,6 +4108,104 @@
+     "any",
+     "base"
+   ],
++  "astra": [
++    "astra",
++    "debian.10",
++    "debian",
++    "linux",
++    "unix",
++    "any",
++    "base"
++  ],
++  "astra-x64": [
++    "astra-x64",
++    "astra",
++    "debian.10-x64",
++    "debian.10",
++    "debian-x64",
++    "debian",
++    "linux-x64",
++    "linux",
++    "unix-x64",
++    "unix",
++    "any",
++    "base"
++  ],
++  "astra.1.6": [
++    "astra.1.6",
++    "astra",
++    "debian.10",
++    "debian",
++    "linux",
++    "unix",
++    "any",
++    "base"
++  ],
++  "astra.1.6-x64": [
++    "astra.1.6-x64",
++    "astra.1.6",
++    "astra-x64",
++    "astra",
++    "debian.10-x64",
++    "debian.10",
++    "debian-x64",
++    "debian",
++    "linux-x64",
++    "linux",
++    "unix-x64",
++    "unix",
++    "any",
++    "base"
++  ],
++  "astra.1.7": [
++    "astra.1.7",
++    "astra",
++    "debian.10",
++    "debian",
++    "linux",
++    "unix",
++    "any",
++    "base"
++  ],
++  "astra.1.7-x64": [
++    "astra.1.7-x64",
++    "astra.1.7",
++    "astra-x64",
++    "astra",
++    "debian.10-x64",
++    "debian.10",
++    "debian-x64",
++    "debian",
++    "linux-x64",
++    "linux",
++    "unix-x64",
++    "unix",
++    "any",
++    "base"
++  ],
++  "astra.1.8": [
++    "astra.1.8",
++    "debian.12",
++    "debian",
++    "linux",
++    "unix",
++    "any",
++    "base"
++  ],
++  "astra.1.8-x64": [
++    "astra.1.8-x64",
++    "astra.1.8",
++    "debian.12-x64",
++    "debian.12",
++    "debian-x64",
++    "debian",
++    "linux-x64",
++    "linux",
++    "unix-x64",
++    "unix",
++    "any",
++    "base"
++  ],
+   "base": [
+     "base"
+   ],
+--- dotnet8.orig/src/runtime/src/libraries/Microsoft.NETCore.Platforms/src/Microsoft.NETCore.Platforms.csproj
++++ dotnet8/src/runtime/src/libraries/Microsoft.NETCore.Platforms/src/Microsoft.NETCore.Platforms.csproj
+@@ -27,7 +27,7 @@
+     <_generateRuntimeGraphTargetFramework Condition="'$(MSBuildRuntimeType)' != 'core'">net472</_generateRuntimeGraphTargetFramework>
+     <_generateRuntimeGraphTask>$([MSBuild]::NormalizePath('$(BaseOutputPath)', $(Configuration), '$(_generateRuntimeGraphTargetFramework)', '$(AssemblyName).dll'))</_generateRuntimeGraphTask>
+     <!-- When building from source, ensure the RID we're building for is part of the RID graph -->
+-    <AdditionalRuntimeIdentifiers Condition="'$(DotNetBuildFromSource)' == 'true'">$(AdditionalRuntimeIdentifiers);$(OutputRID)</AdditionalRuntimeIdentifiers>
++    <!-- <AdditionalRuntimeIdentifiers Condition="'$(DotNetBuildFromSource)' == 'true'">$(AdditionalRuntimeIdentifiers);$(OutputRID)</AdditionalRuntimeIdentifiers> -->
+   </PropertyGroup>
+ 
+   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
+@@ -63,6 +63,7 @@
+   <UsingTask TaskName="GenerateRuntimeGraph" AssemblyFile="$(_generateRuntimeGraphTask)"/>
+ 
+   <Target Name="GenerateRuntimeJson" AfterTargets="Build" Condition="'$(AdditionalRuntimeIdentifiers)' != ''">
++    <Message Importance="High" Text="AdditionalRuntimeIdentifiers: $(AdditionalRuntimeIdentifiers)"/>
+     <MakeDir Directories="$(IntermediateOutputPath)" />
+     <GenerateRuntimeGraph RuntimeGroups="@(RuntimeGroupWithQualifiers)"
+                           AdditionalRuntimeIdentifiers="$(AdditionalRuntimeIdentifiers)"

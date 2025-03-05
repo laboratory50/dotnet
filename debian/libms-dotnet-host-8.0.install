@@ -1,0 +1,1 @@
+usr/share/dotnet/host/fxr usr/lib/${DEB_BUILD_MULTIARCH}/dotnet/host
