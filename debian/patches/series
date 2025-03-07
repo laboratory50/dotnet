@@ -4,3 +4,4 @@ runtime-re-enable-implicit-rejection.patch
 runtime-openssl-sha1.patch
 fix-default-path.patch
 astra-linux-rid.patch
+ubuntu24.04-rid.patch

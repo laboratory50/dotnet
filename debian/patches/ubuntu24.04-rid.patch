@@ -1,0 +1,123 @@
+--- dotnet.orig/src/runtime/src/libraries/Microsoft.NETCore.Platforms/src/runtime.compatibility.json
++++ dotnet/src/runtime/src/libraries/Microsoft.NETCore.Platforms/src/runtime.compatibility.json
+@@ -11151,6 +11151,71 @@
+     "any",
+     "base"
+   ],
++  "ubuntu.24.04": [
++    "ubuntu.24.04",
++    "ubuntu",
++    "debian",
++    "linux",
++    "unix",
++    "any",
++    "base"
++  ],
++  "ubuntu.24.04-arm": [
++    "ubuntu.24.04-arm",
++    "ubuntu.24.04",
++    "ubuntu-arm",
++    "ubuntu",
++    "debian-arm",
++    "debian",
++    "linux-arm",
++    "linux",
++    "unix-arm",
++    "unix",
++    "any",
++    "base"
++  ],
++  "ubuntu.24.04-arm64": [
++    "ubuntu.24.04-arm64",
++    "ubuntu.24.04",
++    "ubuntu-arm64",
++    "ubuntu",
++    "debian-arm64",
++    "debian",
++    "linux-arm64",
++    "linux",
++    "unix-arm64",
++    "unix",
++    "any",
++    "base"
++  ],
++  "ubuntu.24.04-x64": [
++    "ubuntu.24.04-x64",
++    "ubuntu.24.04",
++    "ubuntu-x64",
++    "ubuntu",
++    "debian-x64",
++    "debian",
++    "linux-x64",
++    "linux",
++    "unix-x64",
++    "unix",
++    "any",
++    "base"
++  ],
++  "ubuntu.24.04-x86": [
++    "ubuntu.24.04-x86",
++    "ubuntu.24.04",
++    "ubuntu-x86",
++    "ubuntu",
++    "debian-x86",
++    "debian",
++    "linux-x86",
++    "linux",
++    "unix-x86",
++    "unix",
++    "any",
++    "base"
++  ],
+   "unix": [
+     "unix",
+     "any",
+--- dotnet.orig/src/runtime/src/libraries/Microsoft.NETCore.Platforms/src/runtime.json
++++ dotnet/src/runtime/src/libraries/Microsoft.NETCore.Platforms/src/runtime.json
+@@ -4259,6 +4259,35 @@
+         "ubuntu-x86"
+       ]
+     },
++    "ubuntu.24.04": {
++      "#import": [
++        "ubuntu"
++      ]
++    },
++    "ubuntu.24.04-arm": {
++      "#import": [
++        "ubuntu.24.04",
++        "ubuntu-arm"
++      ]
++    },
++    "ubuntu.24.04-arm64": {
++      "#import": [
++        "ubuntu.24.04",
++        "ubuntu-arm64"
++      ]
++    },
++    "ubuntu.24.04-x64": {
++      "#import": [
++        "ubuntu.24.04",
++        "ubuntu-x64"
++      ]
++    },
++    "ubuntu.24.04-x86": {
++      "#import": [
++        "ubuntu.24.04",
++        "ubuntu-x86"
++      ]
++    },
+     "unix": {
+       "#import": [
+         "any"
+--- dotnet.orig/src/runtime/src/libraries/Microsoft.NETCore.Platforms/src/runtimeGroups.props
++++ dotnet/src/runtime/src/libraries/Microsoft.NETCore.Platforms/src/runtimeGroups.props
+@@ -279,7 +279,7 @@
+     <RuntimeGroup Include="ubuntu">
+       <Parent>debian</Parent>
+       <Architectures>x64;x86;arm;arm64</Architectures>
+-      <Versions>16.04;16.10;17.04;17.10;18.04;18.10;19.04;19.10;20.04;20.10;21.04;21.10;22.04;22.10;23.04;23.10</Versions>
++      <Versions>16.04;16.10;17.04;17.10;18.04;18.10;19.04;19.10;20.04;20.10;21.04;21.10;22.04;22.10;23.04;23.10;24.04</Versions>
+       <TreatVersionsAsCompatible>false</TreatVersionsAsCompatible>
+     </RuntimeGroup>
+ 
