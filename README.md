@@ -1,8 +1,53 @@
+# .NET для Linux
+
+Открытая сборка .NET для Linux.
+
+Альтернативная сборка .NET с минимальными модификациями для различных дистрибутивов Linux.
+
+Авторы: [Лаборатория 50](http://лаборатория50.рф) team@lab50.net.
+
+## Лицензия
+
+Все материалы распространяются на условиях
+стандартной общественной лицензии [GNU (GPL)](http://www.gnu.org/copyleft/gpl.html) версии 3.
+
+Полный текст лицензии находится в файле LICENSE.
+
 Исходные тексты взяты из официального репозитория GitHub. Пакеты созданы совместимы с вариантом производителя.
 
-## Пакетный состав
+## Поддерживаемые дистрибутивы
 
-Все основные файлы устанавливаются в каталог /usr/lib/x86_64-linux-gnu/dotnet.
+.NET 8:
+
+ * Ubuntu 24.04 LTS Noble Numbat;
+ * Debian 12 Bookworm;
+ * Astra Linux Special Edition 1.7;
+ * Astra Linux Special Edition 1.8.
+
+## Установка
+
+Создайте файл /etc/apt/sources.list.d/opendotnet.list:
+
+    deb http://packages.lab50.net/dotnet/ <bookworm|noble|alse16|alse17|> main
+
+Добавьте цифровой ключ подписи в APT:
+
+    wget -q -O /etc/apt/trusted.gpg.d/lab50.gpg http://packages.lab50.net/lab50.gpg > /dev/null
+
+Обновите репозиторий:
+
+    apt-get update
+
+Установите пакет ms-dotnet-runtime-8.0 или ms-dotnet-sdk-8.0:.
+
+    apt-get install ms-dotnet-runtime-8.0
+
+## Изменения по сравнению с оригинальным .NET
+
+ 1. Все основные файлы устанавливаются в каталог /usr/lib/x86_64-linux-gnu/dotnet.
+ 2. Добавлены дополнительные RID.
+
+## Пакеты
 
 ### ms-aspnetcore-runtime-X.0
 
